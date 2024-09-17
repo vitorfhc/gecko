@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Popup = () => {
   const handleClick = () => {
@@ -10,8 +11,8 @@ const Popup = () => {
 
   return (
     <div>
-      <h1>My Extension Popup</h1>
-      <button onClick={handleClick}>Send Message to Service Worker</button>
+      <h1>Popup</h1>
+      <button type="button" className="btn btn-primary" onClick={handleClick}>Click me</button>
     </div>
   );
 };

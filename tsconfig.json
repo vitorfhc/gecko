@@ -7,8 +7,7 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist/js",
-        "types": ["chrome"],
+        "outDir": "dist/js"
     },
     "include": [
         "src"
