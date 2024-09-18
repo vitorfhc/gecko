@@ -12,6 +12,8 @@
     },
     "permissions": [
       "activeTab",
-      "scripting"
-    ]
+      "scripting",
+      "webRequest"
+    ],
+    "host_permissions": ["<all_urls>"]
   }
