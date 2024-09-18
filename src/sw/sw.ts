@@ -1,5 +1,30 @@
+import { Mutex } from 'async-mutex';
+
 let currentTab: chrome.tabs.Tab | null = null
 let partialMatch = true
+let storageMutex = new Mutex()
+
+function storeFinding(source: Source) {
+    storageMutex.runExclusive(async () => {
+        chrome.storage.local.get('findings', (items) => {
+            const findings = items.findings || []
+            findings.push(source)
+            chrome.storage.local.set({ findings })
+        })
+    })
+}
+
+function getFindings(): Promise<Source[]> {
+    return storageMutex.runExclusive(async () => {
+        return new Promise<Source[]>((resolve) => {
+            chrome.storage.local.get('findings', (items) => {
+                const findings = items.findings || []
+                resolve(findings)
+            })
+        })
+    })
+
+}
 
 function contentLog(message: string) {
     chrome.scripting.executeScript({
@@ -27,9 +52,9 @@ updateCurrentTab()
 chrome.webRequest.onBeforeRequest.addListener((details) => {
     if (currentTab && currentTab.url) {
         const sources = urlToSources(currentTab.url)
-        contentLog(`Sources: ${JSON.stringify(sources)}`)
         const sinks = findSinks(details.url, sources)
-        sinks.length && contentLog(`Sinks: ${JSON.stringify(sinks)}`)
+        sinks.forEach((sink) => storeFinding(sink))
+        getFindings().then((findings) => contentLog(`Findings: ${JSON.stringify(findings)}`))
     }
 }, { urls: ['<all_urls>'] })
 

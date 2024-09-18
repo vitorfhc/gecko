@@ -5,7 +5,8 @@
 - [x] URL Encoding
 - [x] Partial matching (extensions)
 - [x] null or undefined
-- [ ] Store findings
+- [-] Store findings (missing testing it)
+- [ ] Avoid duplicate findings
 
 ## UI
 
