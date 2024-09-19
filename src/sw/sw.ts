@@ -57,17 +57,17 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
         const sources = urlToSources(currentTab.url)
         const findings = generateFindings(details.url, sources)
         findings.forEach((finding) => storeFinding(finding))
-        getFindings().then((findings) => contentLog(`Findings: ${JSON.stringify(findings)}`))
+        // getFindings().then((findings) => contentLog(`Findings: ${JSON.stringify(findings)}`))
     }
 }, { urls: ['<all_urls>'] })
 
 enum SourceType {
-    QueryValue = 'query value',
-    QueryValueEncoded = 'query value encoded',
-    PathValue = 'path value',
-    PathValueEncoded = 'path value encoded',
-    UndefinedValue = 'undefined value',
-    NullValue = 'null value',
+    QueryValue = 'query',
+    QueryValueEncoded = 'query encoded',
+    PathValue = 'path',
+    PathValueEncoded = 'path encoded',
+    UndefinedValue = 'undefined',
+    NullValue = 'null',
 }
 
 interface Source {

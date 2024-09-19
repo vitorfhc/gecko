@@ -6,6 +6,7 @@
     "action": {
       "default_popup": "popup.html"
     },
+    "devtools_page": "devtools.html",
     "background": {
       "service_worker": "js/sw.js",
       "type": "module"

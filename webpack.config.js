@@ -6,6 +6,7 @@ module.exports = {
     devtool: 'inline-source-map',
     entry: {
         popup: './src/pages/popup.tsx',
+        panel: './src/pages/panel.tsx',
         sw: './src/sw/sw.ts',
     },
     output: {
