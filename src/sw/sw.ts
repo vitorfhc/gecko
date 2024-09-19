@@ -4,7 +4,7 @@ let currentTab: chrome.tabs.Tab | null = null
 let partialMatch = true
 let storageMutex = new Mutex()
 
-function storeFinding(source: Source) {
+function storeFinding(source: Finding) {
     storageMutex.runExclusive(async () => {
         chrome.storage.local.get('findings', (items) => {
             const findings = items.findings || []
@@ -14,9 +14,9 @@ function storeFinding(source: Source) {
     })
 }
 
-function getFindings(): Promise<Source[]> {
+function getFindings(): Promise<Finding[]> {
     return storageMutex.runExclusive(async () => {
-        return new Promise<Source[]>((resolve) => {
+        return new Promise<Finding[]>((resolve) => {
             chrome.storage.local.get('findings', (items) => {
                 const findings = items.findings || []
                 resolve(findings)
@@ -51,9 +51,12 @@ updateCurrentTab()
 
 chrome.webRequest.onBeforeRequest.addListener((details) => {
     if (currentTab && currentTab.url) {
+        if (details.url === currentTab.url) {
+            return
+        }
         const sources = urlToSources(currentTab.url)
-        const sinks = findSinks(details.url, sources)
-        sinks.forEach((sink) => storeFinding(sink))
+        const findings = generateFindings(details.url, sources)
+        findings.forEach((finding) => storeFinding(finding))
         getFindings().then((findings) => contentLog(`Findings: ${JSON.stringify(findings)}`))
     }
 }, { urls: ['<all_urls>'] })
@@ -69,7 +72,13 @@ enum SourceType {
 
 interface Source {
     type: SourceType
+    url: string
     value: string
+}
+
+interface Finding {
+    source: Source
+    targetUrl: string
 }
 
 function urlToSources(url: string): Source[] {
@@ -80,6 +89,7 @@ function urlToSources(url: string): Source[] {
     query.forEach((v) => {
         sources.push({
             type: SourceType.QueryValue,
+            url: url,
             value: v,
         })
 
@@ -87,6 +97,7 @@ function urlToSources(url: string): Source[] {
         if (encoded !== v) {
             sources.push({
                 type: SourceType.QueryValueEncoded,
+                url: url,
                 value: encoded,
             })
         }
@@ -96,6 +107,7 @@ function urlToSources(url: string): Source[] {
     pathParts.forEach((part) => {
         sources.push({
             type: SourceType.PathValue,
+            url: url,
             value: part,
         })
 
@@ -103,6 +115,7 @@ function urlToSources(url: string): Source[] {
         if (encoded !== part) {
             sources.push({
                 type: SourceType.PathValueEncoded,
+                url: url,
                 value: encoded,
             })
         }
@@ -111,30 +124,35 @@ function urlToSources(url: string): Source[] {
     const undefinedValue = 'undefined'
     sources.push({
         type: SourceType.UndefinedValue,
+        url: url,
         value: undefinedValue,
     })
 
     const nullValue = 'null'
     sources.push({
         type: SourceType.NullValue,
+        url: url,
         value: nullValue,
     })
 
     return sources.filter((source) => source.value.length > 0)
 }
 
-function findSinks(url: string, sources: Source[]): Source[] {
-    const sinks: Source[] = []
+function generateFindings(url: string, sources: Source[]): Finding[] {
+    const findings: Finding[] = []
     const pathParts = (new URL(url)).pathname.split('/')
 
     sources.forEach((source) => {
         pathParts.forEach((part) => {
             const match = partialMatch ? part.includes(source.value) : part === source.value
             if (part.length !== 0 && match) {
-                sinks.push(source)
+                findings.push({
+                    source,
+                    targetUrl: url,
+                })
             }
         })
     })
 
-    return sinks
+    return findings
 }
