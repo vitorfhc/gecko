@@ -18,5 +18,7 @@
 
 ### DevTools panel
 
-- [ ] Findings table
-- [ ] Clear findings button
+- [x] Findings table
+- [x] Clear findings button
+- [ ] Add click on table's rows to expand information
+- [ ] Improve how we show information so the user can decide if it's worth it clicking
