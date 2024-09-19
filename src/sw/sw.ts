@@ -14,28 +14,6 @@ function storeFinding(source: Finding) {
     })
 }
 
-function getFindings(): Promise<Finding[]> {
-    return storageMutex.runExclusive(async () => {
-        return new Promise<Finding[]>((resolve) => {
-            chrome.storage.local.get('findings', (items) => {
-                const findings = items.findings || []
-                resolve(findings)
-            })
-        })
-    })
-
-}
-
-function contentLog(message: string) {
-    chrome.scripting.executeScript({
-        target: { tabId: currentTab?.id || 0 },
-        func: (message) => {
-            console.log(message)
-        },
-        args: [message],
-    })
-}
-
 function updateCurrentTab() {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs.length > 0) {
@@ -57,7 +35,6 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
         const sources = urlToSources(currentTab.url)
         const findings = generateFindings(details.url, sources)
         findings.forEach((finding) => storeFinding(finding))
-        // getFindings().then((findings) => contentLog(`Findings: ${JSON.stringify(findings)}`))
     }
 }, { urls: ['<all_urls>'] })
 
