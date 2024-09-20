@@ -1,4 +1,5 @@
 import { Mutex } from 'async-mutex';
+import { Source, SourceType, Finding } from '../shared/types';
 
 let currentTab: chrome.tabs.Tab | null = null
 let partialMatch = true
@@ -37,26 +38,6 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
         findings.forEach((finding) => storeFinding(finding))
     }
 }, { urls: ['<all_urls>'] })
-
-enum SourceType {
-    QueryValue = 'query',
-    QueryValueEncoded = 'query encoded',
-    PathValue = 'path',
-    PathValueEncoded = 'path encoded',
-    UndefinedValue = 'undefined',
-    NullValue = 'null',
-}
-
-interface Source {
-    type: SourceType
-    url: string
-    value: string
-}
-
-interface Finding {
-    source: Source
-    targetUrl: string
-}
 
 function urlToSources(url: string): Source[] {
     const sources: Source[] = []
