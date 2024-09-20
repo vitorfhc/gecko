@@ -22,4 +22,11 @@ interface Finding {
     target: Target
 }
 
-export { SourceType, Source, Finding };
+interface FindingUI {
+    index: number;
+    finding: Finding;
+    croppedSourceUrl: string;
+    croppedTargetUrl: string;
+}
+
+export { SourceType, Source, Finding, FindingUI }

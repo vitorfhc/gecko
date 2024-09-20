@@ -1,10 +1,14 @@
 import React, { useEffect } from "react";
 import { useState } from "react"
-import { Finding } from "../shared/types";
+import { Finding, FindingUI } from "../shared/types";
 import '../tailwind/styles.css';
 
-export default function FindingsTable() {
-  const [findings, setFindings] = useState<Finding[]>([]);
+interface FindingsTableProps {
+  onRowClick: (finding: FindingUI) => void;
+}
+
+export default function FindingsTable({ onRowClick }: FindingsTableProps) {
+  const [findings, setFindings] = useState<FindingUI[]>([]);
 
   const clearFindings = () => {
     chrome.storage.local.set({ findings: [] });
@@ -13,17 +17,20 @@ export default function FindingsTable() {
 
   const fetchFindings = () => {
     chrome.storage.local.get('findings', (data) => {
-      // remove https and http from the findings
-      const localFindings = data.findings ? data.findings.reverse().map((finding: Finding) => {
-        finding.source.url = finding.source.url.replace('https://', '').replace('http://', '');
-        finding.target.url = finding.target.url.replace('https://', '').replace('http://', '');
-        return finding;
+      const uiFindings: FindingUI[] = data.findings ? data.findings.reverse().map((finding: Finding, index: number) => {
+        return {
+          index: data.findings.length - index,
+          finding: finding,
+          croppedSourceUrl: cropUrl(finding.source.url, 40),
+          croppedTargetUrl: cropUrl(finding.target.url, 40)
+        }
       }) : [];
-      setFindings(localFindings);
+      setFindings(uiFindings);
     });
   }
 
-  const cropText = (text: string, length: number) => {
+  const cropUrl = (text: string, length: number) => {
+    text = text.replace('https://', '').replace('http://', '');
     return text.length > length ? text.substring(0, length - 3) + '...' : text;
   }
 
@@ -75,25 +82,17 @@ export default function FindingsTable() {
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                       Target
                     </th>
-                    {/* <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                      <span className="sr-only">Edit</span>
-                    </th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {findings.map((finding, index) => (
-                    <tr key={`finding-${index}`} className="hover:bg-gray-50">
+                  {findings.map((finding) => (
+                    <tr key={finding.index} className="hover:bg-gray-50" onClick={() => onRowClick(finding)}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {findings.length - index}
+                        {finding.index}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{finding.source.value}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.source.url, 40)}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.target.url, 40)}</td>
-                      {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                          Edit<span className="sr-only">, {finding.name}</span>
-                        </a>
-                      </td> */}
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{finding.finding.source.value}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropUrl(finding.croppedSourceUrl, 40)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropUrl(finding.croppedTargetUrl, 40)}</td>
                     </tr>
                   ))}
                 </tbody>

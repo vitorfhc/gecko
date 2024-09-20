@@ -25,5 +25,6 @@
 - [x] Clear findings button
 - [x] Limit the amount of characters to avoid huge tables
 - [x] Improve how we show information so the user can decide if it's worth it clicking
-- [ ] Add click on table's rows to expand information
-- [ ] Improve the UI according to the v0.dev
+- [x] Improve the UI according to the v0.dev
+- [x] Add click on table's rows to expand information
+- [ ] Add settings drawer
