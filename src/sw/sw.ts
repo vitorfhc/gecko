@@ -106,7 +106,9 @@ function generateFindings(url: string, sources: Source[]): Finding[] {
             if (part.length !== 0 && match) {
                 findings.push({
                     source,
-                    targetUrl: url,
+                    target: {
+                        url,
+                    }
                 })
             }
         })

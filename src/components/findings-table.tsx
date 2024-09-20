@@ -16,7 +16,7 @@ export default function FindingsTable() {
       // remove https and http from the findings
       const localFindings = data.findings ? data.findings.reverse().map((finding: Finding) => {
         finding.source.url = finding.source.url.replace('https://', '').replace('http://', '');
-        finding.targetUrl = finding.targetUrl.replace('https://', '').replace('http://', '');
+        finding.target.url = finding.target.url.replace('https://', '').replace('http://', '');
         return finding;
       }) : [];
       setFindings(localFindings);
@@ -88,7 +88,7 @@ export default function FindingsTable() {
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{finding.source.value}</td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.source.url, 40)}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.targetUrl, 40)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.target.url, 40)}</td>
                       {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <a href="#" className="text-indigo-600 hover:text-indigo-900">
                           Edit<span className="sr-only">, {finding.name}</span>

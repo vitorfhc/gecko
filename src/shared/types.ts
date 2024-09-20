@@ -13,9 +13,13 @@ interface Source {
     value: string
 }
 
+interface Target {
+    url: string
+}
+
 interface Finding {
     source: Source
-    targetUrl: string
+    target: Target
 }
 
 export { SourceType, Source, Finding };
