@@ -19,7 +19,7 @@ const Panel = () => {
   };
 
   return (
-    <div className="mt-4 mb-8">
+    <div className="pt-4 pb-8 bg-gray-100">
       <FindingsTable onRowClick={handleRowClick} />
       <FindingDrawer open={isDrawerOpen} finding={selectedFinding} onClose={handleCloseDrawer} />
     </div>
