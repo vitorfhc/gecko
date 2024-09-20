@@ -17,6 +17,10 @@ export default function FindingsTable() {
     });
   }
 
+  const cropText = (text: string, length: number) => {
+    return text.length > length ? text.substring(0, length - 3) + '...' : text;
+  }
+
   useEffect(() => {
     fetchFindings();
   }, []);
@@ -77,8 +81,8 @@ export default function FindingsTable() {
                         {findings.length - index}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{finding.source.value}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{finding.source.url}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{finding.targetUrl}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.source.url, 40)}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropText(finding.targetUrl, 40)}</td>
                       {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <a href="#" className="text-indigo-600 hover:text-indigo-900">
                           Edit<span className="sr-only">, {finding.name}</span>
