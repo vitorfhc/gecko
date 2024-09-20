@@ -15,8 +15,8 @@
 
 ### Popup
 
-- [ ] Toggles for source types
-- [ ] Partial matching toggle
+- [x] Toggles for source types
+- [x] Partial matching toggle
 - [ ] Findings badge
 
 ### DevTools panel
