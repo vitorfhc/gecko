@@ -7,7 +7,7 @@
 - [x] null or undefined
 - [x] Store findings
 - [x] Improve findings output
-- [ ] Avoid duplicate findings
+- [x] Avoid duplicate findings (WONT DO)
 
 ## UI
 
@@ -23,7 +23,7 @@
 
 - [x] Findings table
 - [x] Clear findings button
+- [x] Limit the amount of characters to avoid huge tables
+- [x] Improve how we show information so the user can decide if it's worth it clicking
 - [ ] Add click on table's rows to expand information
-- [ ] Limit the amount of characters to avoid huge tables
-- [ ] Improve how we show information so the user can decide if it's worth it clicking
 - [ ] Improve the UI according to the v0.dev
