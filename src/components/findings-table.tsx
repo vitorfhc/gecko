@@ -13,7 +13,13 @@ export default function FindingsTable() {
 
   const fetchFindings = () => {
     chrome.storage.local.get('findings', (data) => {
-      setFindings(data.findings ? data.findings.reverse() : []);
+      // remove https and http from the findings
+      const localFindings = data.findings ? data.findings.reverse().map((finding: Finding) => {
+        finding.source.url = finding.source.url.replace('https://', '').replace('http://', '');
+        finding.targetUrl = finding.targetUrl.replace('https://', '').replace('http://', '');
+        return finding;
+      }) : [];
+      setFindings(localFindings);
     });
   }
 

@@ -11,12 +11,13 @@
 
 ## UI
 
-- [ ] Remove bootstrap and dependencies
+- [x] Remove bootstrap and dependencies
 
 ### Popup
 
 - [ ] Toggles for source types
 - [ ] Partial matching toggle
+- [ ] Findings badge
 
 ### DevTools panel
 
