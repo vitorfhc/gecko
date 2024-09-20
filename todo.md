@@ -11,6 +11,8 @@
 
 ## UI
 
+- [ ] Remove bootstrap and dependencies
+
 ### Popup
 
 - [ ] Toggles for source types
@@ -21,5 +23,6 @@
 - [x] Findings table
 - [x] Clear findings button
 - [ ] Add click on table's rows to expand information
+- [ ] Limit the amount of characters to avoid huge tables
 - [ ] Improve how we show information so the user can decide if it's worth it clicking
 - [ ] Improve the UI according to the v0.dev
