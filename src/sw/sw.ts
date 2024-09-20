@@ -5,11 +5,11 @@ let currentTab: chrome.tabs.Tab | null = null
 let partialMatch = true
 let storageMutex = new Mutex()
 
-function storeFinding(source: Finding) {
+function storeFinding(finding: Finding) {
     storageMutex.runExclusive(async () => {
         chrome.storage.local.get('findings', (items) => {
             const findings = items.findings || []
-            findings.push(source)
+            findings.push(finding)
             chrome.storage.local.set({ findings })
         })
     })
