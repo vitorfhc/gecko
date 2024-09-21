@@ -8,6 +8,7 @@
 - [x] Store findings
 - [x] Improve findings output
 - [x] Avoid duplicate findings (WONT DO)
+- [ ] Case sensitivity
 
 ## UI
 
