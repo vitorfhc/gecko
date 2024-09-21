@@ -18,6 +18,7 @@
 - [x] Toggles for source types
 - [x] Partial matching toggle
 - [ ] Findings badge
+- [ ] Add minimum length for partial matching
 
 ### DevTools panel
 
