@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react"
 import { Finding, FindingUI } from "../shared/types";
 import '../tailwind/styles.css';
+import { ChevronRightIcon } from '@heroicons/react/20/solid'
 
 interface FindingsTableProps {
   onRowClick: (finding: FindingUI) => void;
@@ -21,18 +22,18 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
         return {
           index: data.findings.length - index,
           finding: finding,
-          croppedSourceUrl: cropUrl(finding.source.url, 40),
-          croppedTargetUrl: cropUrl(finding.target.url, 40)
+          croppedSourceUrl: removeProtocol(finding.source.url),
+          croppedTargetUrl: removeProtocol(finding.target.url)
         }
       }) : [];
       setFindings(uiFindings);
     });
   }
 
-  const cropUrl = (text: string, length: number) => {
-    text = text.replace('https://', '').replace('http://', '');
-    return text.length > length ? text.substring(0, length - 3) + '...' : text;
+  const removeProtocol = (url: string) => {
+    return url.replace('https://', '').replace('http://', '');
   }
+
 
   useEffect(() => {
     fetchFindings();
@@ -67,32 +68,40 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300 cursor-pointer">
+              <table className="min-w-full divide-y divide-gray-300 cursor-pointer table-fixed">
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                       #
                     </th>
                     <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Value
+                      Request
                     </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Source
-                    </th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                      Target
+                    <th scope="col" className="px-3 py-3.5">
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {findings.map((finding) => (
                     <tr key={finding.index} className="hover:bg-gray-50" onClick={() => onRowClick(finding)}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {finding.index}
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-6">{finding.index}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 truncate max-w-0 w-full space-y-2">
+                        <dl>
+                          <dt className="text-gray-500 text-xs">Value</dt>
+                          <dd className="text-sm text-gray-800 truncate">{finding.finding.source.value}</dd>
+                        </dl>
+                        <dl>
+                          <dt className="text-gray-500 text-xs">Source</dt>
+                          <dd className="text-sm text-gray-800 truncate">{finding.croppedSourceUrl}</dd>
+                        </dl>
+                        <dl>
+                          <dt className="text-gray-500 text-xs">Target</dt>
+                          <dd className="text-sm text-gray-800 truncate">{finding.croppedTargetUrl}</dd>
+                        </dl>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{finding.finding.source.value}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropUrl(finding.croppedSourceUrl, 40)}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{cropUrl(finding.croppedTargetUrl, 40)}</td>
+                      <td>
+                        <ChevronRightIcon aria-hidden="true" className="h-5 w-5 flex-none text-gray-400" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
