@@ -35,7 +35,7 @@ chrome.webRequest.onBeforeRequest.addListener((details) => {
         }
         const sources = urlToSources(currentTab.url)
         const findings = generateFindings(details.url, sources)
-        findings.forEach((finding) => storeFinding(finding))
+        findings.forEach((finding) => storeFinding(finding)) // TODO: store multiple findings at once
     }
 }, { urls: ['<all_urls>'] })
 
