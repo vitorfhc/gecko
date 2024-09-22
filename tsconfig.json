@@ -1,16 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "ES6",
-        "module": "es6",
-        "moduleResolution": "node",
-        "strict": true,
-        "jsx": "react",
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "dist/js"
-    },
-    "include": [
-        "src"
-    ]
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "es6",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist/js"
+  },
+  "include": ["src"]
 }

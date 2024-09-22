@@ -1,21 +1,16 @@
 {
-    "manifest_version": 3,
-    "name": "Gecko",
-    "description": "Automated CSPT discovery tool",
-    "version": "0.1",
-    "action": {
-      "default_popup": "popup.html"
-    },
-    "devtools_page": "devtools.html",
-    "background": {
-      "service_worker": "js/sw.js",
-      "type": "module"
-    },
-    "permissions": [
-      "activeTab",
-      "scripting",
-      "webRequest",
-      "storage"
-    ],
-    "host_permissions": ["<all_urls>"]
-  }
+  "manifest_version": 3,
+  "name": "Gecko",
+  "description": "Automated CSPT discovery tool",
+  "version": "0.1",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "devtools_page": "devtools.html",
+  "background": {
+    "service_worker": "js/sw.js",
+    "type": "module"
+  },
+  "permissions": ["activeTab", "scripting", "webRequest", "storage"],
+  "host_permissions": ["<all_urls>"]
+}

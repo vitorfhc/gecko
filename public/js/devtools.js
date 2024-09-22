@@ -1,5 +1,6 @@
-chrome.devtools.panels.create("Gecko",
-    "MyPanelIcon.png",
-    "panel.html",
-    function(panel) {}
+chrome.devtools.panels.create(
+  "Gecko",
+  "MyPanelIcon.png",
+  "panel.html",
+  function (panel) {},
 );

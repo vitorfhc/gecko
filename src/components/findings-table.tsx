@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { useState } from "react"
+import { useState } from "react";
 import { Finding, FindingUI } from "../shared/types";
-import '../tailwind/styles.css';
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
+import "../tailwind/styles.css";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 interface FindingsTableProps {
   onRowClick: (finding: FindingUI) => void;
@@ -14,26 +14,27 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
   const clearFindings = () => {
     chrome.storage.local.set({ findings: [] });
     setFindings([]);
-  }
+  };
 
   const fetchFindings = () => {
-    chrome.storage.local.get('findings', (data) => {
-      const uiFindings: FindingUI[] = data.findings ? data.findings.reverse().map((finding: Finding, index: number) => {
-        return {
-          index: data.findings.length - index,
-          finding: finding,
-          croppedSourceUrl: removeProtocol(finding.source.url),
-          croppedTargetUrl: removeProtocol(finding.target.url)
-        }
-      }) : [];
+    chrome.storage.local.get("findings", (data) => {
+      const uiFindings: FindingUI[] = data.findings
+        ? data.findings.reverse().map((finding: Finding, index: number) => {
+            return {
+              index: data.findings.length - index,
+              finding: finding,
+              croppedSourceUrl: removeProtocol(finding.source.url),
+              croppedTargetUrl: removeProtocol(finding.target.url),
+            };
+          })
+        : [];
       setFindings(uiFindings);
     });
-  }
+  };
 
   const removeProtocol = (url: string) => {
-    return url.replace('https://', '').replace('http://', '');
-  }
-
+    return url.replace("https://", "").replace("http://", "");
+  };
 
   useEffect(() => {
     fetchFindings();
@@ -49,7 +50,9 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">Findings</h1>
+          <h1 className="text-base font-semibold leading-6 text-gray-900">
+            Findings
+          </h1>
           <p className="mt-2 text-sm text-gray-700">
             A list of all findings the extension has detected.
           </p>
@@ -71,24 +74,39 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
               <table className="min-w-full divide-y divide-gray-300 cursor-pointer table-fixed">
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {findings.map((finding) => (
-                    <tr key={finding.index} className="hover:bg-gray-50" onClick={() => onRowClick(finding)}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-6">{finding.index}</td>
+                    <tr
+                      key={finding.index}
+                      className="hover:bg-gray-50"
+                      onClick={() => onRowClick(finding)}
+                    >
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-6">
+                        {finding.index}
+                      </td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 truncate max-w-0 w-full space-y-2">
                         <dl>
                           <dt className="text-gray-500 text-xs">Value</dt>
-                          <dd className="text-sm text-gray-800 truncate">{finding.finding.source.value}</dd>
+                          <dd className="text-sm text-gray-800 truncate">
+                            {finding.finding.source.value}
+                          </dd>
                         </dl>
                         <dl>
                           <dt className="text-gray-500 text-xs">Source</dt>
-                          <dd className="text-sm text-gray-800 truncate">{finding.croppedSourceUrl}</dd>
+                          <dd className="text-sm text-gray-800 truncate">
+                            {finding.croppedSourceUrl}
+                          </dd>
                         </dl>
                         <dl>
                           <dt className="text-gray-500 text-xs">Target</dt>
-                          <dd className="text-sm text-gray-800 truncate">{finding.croppedTargetUrl}</dd>
+                          <dd className="text-sm text-gray-800 truncate">
+                            {finding.croppedTargetUrl}
+                          </dd>
                         </dl>
                       </td>
                       <td>
-                        <ChevronRightIcon aria-hidden="true" className="h-5 w-5 flex-none text-gray-400" />
+                        <ChevronRightIcon
+                          aria-hidden="true"
+                          className="h-5 w-5 flex-none text-gray-400"
+                        />
                       </td>
                     </tr>
                   ))}
@@ -99,5 +117,5 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
