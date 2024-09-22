@@ -29,6 +29,7 @@ export default function Popup() {
           enabled={true}
           setEnabled={() => {}}
         />
+        <Toggle label="Case Insensitive" enabled={true} setEnabled={() => {}} />
       </div>
       <hr className="my-4" />
       <button
