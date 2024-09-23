@@ -2,8 +2,16 @@ import { Mutex } from "async-mutex";
 import { Source, SourceType, Finding } from "../shared/types";
 
 let currentTab: chrome.tabs.Tab | null = null;
-let partialMatch = true;
 let storageMutex = new Mutex();
+
+const scanSettings = {
+  searchQueryValues: true,
+  searchPath: true,
+  searchNullUndefined: true,
+  clearOnRefresh: true,
+  caseInsensitive: true,
+  partialMatch: true,
+};
 
 function storeFinding(finding: Finding) {
   storageMutex.runExclusive(async () => {
@@ -46,55 +54,61 @@ function urlToSources(url: string): Source[] {
   const sources: Source[] = [];
   const u = new URL(url);
 
-  const query = u.searchParams;
-  query.forEach((v) => {
+  if (scanSettings.searchQueryValues) {
+    const query = u.searchParams;
+    query.forEach((v) => {
+      sources.push({
+        type: SourceType.QueryValue,
+        url: url,
+        value: v,
+      });
+
+      const encoded = encodeURIComponent(v);
+      if (encoded !== v) {
+        sources.push({
+          type: SourceType.QueryValueEncoded,
+          url: url,
+          value: encoded,
+        });
+      }
+    });
+  }
+
+  if (scanSettings.searchPath) {
+    const pathParts = u.pathname.split("/");
+    pathParts.forEach((part) => {
+      sources.push({
+        type: SourceType.PathValue,
+        url: url,
+        value: part,
+      });
+
+      const encoded = encodeURIComponent(part);
+      if (encoded !== part) {
+        sources.push({
+          type: SourceType.PathValueEncoded,
+          url: url,
+          value: encoded,
+        });
+      }
+    });
+  }
+
+  if (scanSettings.searchNullUndefined) {
+    const undefinedValue = "undefined";
     sources.push({
-      type: SourceType.QueryValue,
+      type: SourceType.UndefinedValue,
       url: url,
-      value: v,
+      value: undefinedValue,
     });
 
-    const encoded = encodeURIComponent(v);
-    if (encoded !== v) {
-      sources.push({
-        type: SourceType.QueryValueEncoded,
-        url: url,
-        value: encoded,
-      });
-    }
-  });
-
-  const pathParts = u.pathname.split("/");
-  pathParts.forEach((part) => {
+    const nullValue = "null";
     sources.push({
-      type: SourceType.PathValue,
+      type: SourceType.NullValue,
       url: url,
-      value: part,
+      value: nullValue,
     });
-
-    const encoded = encodeURIComponent(part);
-    if (encoded !== part) {
-      sources.push({
-        type: SourceType.PathValueEncoded,
-        url: url,
-        value: encoded,
-      });
-    }
-  });
-
-  const undefinedValue = "undefined";
-  sources.push({
-    type: SourceType.UndefinedValue,
-    url: url,
-    value: undefinedValue,
-  });
-
-  const nullValue = "null";
-  sources.push({
-    type: SourceType.NullValue,
-    url: url,
-    value: nullValue,
-  });
+  }
 
   return sources.filter((source) => source.value.length > 0);
 }
@@ -105,7 +119,7 @@ function generateFindings(url: string, sources: Source[]): Finding[] {
 
   sources.forEach((source) => {
     pathParts.forEach((part) => {
-      const match = partialMatch
+      const match = scanSettings.partialMatch
         ? part.includes(source.value)
         : part === source.value;
       if (part.length !== 0 && match) {
