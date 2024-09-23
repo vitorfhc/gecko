@@ -119,10 +119,18 @@ function generateFindings(url: string, sources: Source[]): Finding[] {
 
   sources.forEach((source) => {
     pathParts.forEach((part) => {
+      let mPart = part;
+      let mSourceValue = source.value;
+
+      if (scanSettings.caseInsensitive) {
+        mPart = part.toLowerCase();
+        mSourceValue = source.value.toLowerCase();
+      }
+
       const match = scanSettings.partialMatch
-        ? part.includes(source.value)
-        : part === source.value;
-      if (part.length !== 0 && match) {
+        ? mPart.includes(mSourceValue)
+        : mPart === mSourceValue;
+      if (mPart.length !== 0 && match) {
         findings.push({
           source,
           target: {

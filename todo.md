@@ -7,7 +7,7 @@
 - [x] null or undefined
 - [x] Store findings
 - [x] Improve findings output
-- [ ] Case sensitivity
+- [x] Case sensitivity
 
 ## UI
 
