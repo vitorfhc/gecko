@@ -36,8 +36,22 @@ chrome.tabs.onUpdated.addListener(updateCurrentTab);
 
 updateCurrentTab();
 
+// function contentLog(message: any) {
+//   chrome.scripting.executeScript({
+//     target: { tabId: currentTab?.id || 0 },
+//     func: (m) => {
+//       console.log(m);
+//     },
+//     args: [message],
+//   });
+// }
+
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
+    if (!details.initiator) {
+      return;
+    }
+
     if (currentTab && currentTab.url) {
       if (details.url === currentTab.url) {
         return;
