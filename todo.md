@@ -19,8 +19,8 @@
 - [x] Partial matching toggle
 - [x] Findings badge
 - [x] Integrate the toggles with the service worker
+- [x] Notification on how to see findings
 - [ ] Add minimum length for partial matching
-- [ ] Notification on how to see findings
 
 ### DevTools panel
 
@@ -33,3 +33,4 @@
 - [ ] Tooltip for URLs
 - [ ] No findings UI
 - [ ] Coloring on match
+- [ ] Search feature

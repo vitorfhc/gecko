@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import Toggle from "../components/ui/toggle";
 import "../tailwind/styles.css";
 import { defaultSettings } from "../shared/constants";
+import InfoAlert from "../components/ui/info-alert";
 
 export default function Popup() {
   const [settings, setSettings] = React.useState(defaultSettings);
@@ -105,12 +106,7 @@ export default function Popup() {
         />
       </div>
       <hr className="my-4" />
-      <button
-        type="button"
-        className="min-w-full rounded-md bg-slate-800 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600"
-      >
-        See Findings
-      </button>
+      <InfoAlert message="Open the DevTools Gecko panel to see the findings." />
     </div>
   );
 }
