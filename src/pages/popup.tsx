@@ -7,6 +7,7 @@ import InfoAlert from "../components/ui/info-alert";
 
 export default function Popup() {
   const [settings, setSettings] = React.useState(defaultSettings);
+  const minLenClasses = settings.matching.partial ? "" : "hidden";
 
   useEffect(() => {
     chrome.storage.local.get("settings", (items) => {
@@ -78,6 +79,30 @@ export default function Popup() {
             });
           }}
         />
+        <div
+          className={`flex justify-between grid-cols-4 items-center ${minLenClasses}`}
+        >
+          <label className="block text-sm font-medium text-gray-900">
+            Minimum Length
+          </label>
+          <input
+            type="number"
+            className="h-6 max-w-12 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-200"
+            value={settings.matching.partialMinLength}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (isNaN(value)) return;
+              setSettings({
+                ...settings,
+                matching: {
+                  ...settings.matching,
+                  partialMinLength: value,
+                },
+              });
+            }}
+          />
+        </div>
+        <hr className="my-4" />
         <Toggle
           label="Clear Findings on Refresh"
           enabled={settings.display.clearOnRefresh}

@@ -166,7 +166,15 @@ function generateFindings(url: string, sources: Source[]): Finding[] {
         mSourceValue = source.value.toLowerCase();
       }
 
-      const match = currentSettings.matching.partial
+      let usePartialMatch = currentSettings.matching.partial;
+      if (
+        !usePartialMatch ||
+        mSourceValue.length < currentSettings.matching.partialMinLength
+      ) {
+        usePartialMatch = false;
+      }
+
+      const match = usePartialMatch
         ? mPart.includes(mSourceValue)
         : mPart === mSourceValue;
       if (mPart.length !== 0 && match) {

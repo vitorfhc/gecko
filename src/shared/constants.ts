@@ -9,6 +9,7 @@ const defaultSettings: Settings = {
   matching: {
     partial: false,
     caseInsensitive: true,
+    partialMinLength: 3,
   },
   display: {
     clearOnRefresh: false,

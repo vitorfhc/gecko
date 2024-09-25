@@ -20,7 +20,7 @@
 - [x] Findings badge
 - [x] Integrate the toggles with the service worker
 - [x] Notification on how to see findings
-- [ ] Add minimum length for partial matching
+- [x] Add minimum length for partial matching
 
 ### DevTools panel
 

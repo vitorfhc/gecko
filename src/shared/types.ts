@@ -38,6 +38,7 @@ interface Settings {
   };
   matching: {
     partial: boolean;
+    partialMinLength: number;
     caseInsensitive: boolean;
   };
   display: {
