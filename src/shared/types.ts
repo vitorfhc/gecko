@@ -22,6 +22,7 @@ interface Finding {
   target: Target;
 }
 
+// TODO: do we need this?
 interface FindingUI {
   index: number;
   finding: Finding;
@@ -29,4 +30,19 @@ interface FindingUI {
   croppedTargetUrl: string;
 }
 
-export { SourceType, Source, Finding, FindingUI };
+interface Settings {
+  scanners: {
+    searchQueryValues: boolean;
+    searchPath: boolean;
+    searchNullUndefined: boolean;
+  };
+  matching: {
+    partial: boolean;
+    caseInsensitive: boolean;
+  };
+  display: {
+    clearOnRefresh: boolean;
+  };
+}
+
+export { SourceType, Source, Finding, FindingUI, Settings };

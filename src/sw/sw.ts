@@ -1,17 +1,19 @@
 import { Mutex } from "async-mutex";
-import { Source, SourceType, Finding } from "../shared/types";
+import { Source, SourceType, Finding, Settings } from "../shared/types";
+import { defaultSettings } from "../shared/constants";
 
 let currentTab: chrome.tabs.Tab | null = null;
 let storageMutex = new Mutex();
 
-const scanSettings = {
-  searchQueryValues: true,
-  searchPath: true,
-  searchNullUndefined: true,
-  clearOnRefresh: true,
-  caseInsensitive: true,
-  partialMatch: true,
-};
+const currentSettings: Settings = defaultSettings;
+
+chrome.storage.local.get("settings", (items) => {
+  if (!items.settings) {
+    chrome.storage.local.set({ settings: defaultSettings });
+  } else {
+    Object.assign(currentSettings, items.settings);
+  }
+});
 
 chrome.storage.local.onChanged.addListener((changes) => {
   if (changes.findings) {
@@ -29,6 +31,10 @@ chrome.storage.local.onChanged.addListener((changes) => {
         text: "",
       });
     }
+  }
+
+  if (changes.settings) {
+    Object.assign(currentSettings, changes.settings.newValue);
   }
 });
 
@@ -87,7 +93,7 @@ function urlToSources(url: string): Source[] {
   const sources: Source[] = [];
   const u = new URL(url);
 
-  if (scanSettings.searchQueryValues) {
+  if (currentSettings.scanners.searchQueryValues) {
     const query = u.searchParams;
     query.forEach((v) => {
       sources.push({
@@ -107,7 +113,7 @@ function urlToSources(url: string): Source[] {
     });
   }
 
-  if (scanSettings.searchPath) {
+  if (currentSettings.scanners.searchPath) {
     const pathParts = u.pathname.split("/");
     pathParts.forEach((part) => {
       sources.push({
@@ -127,7 +133,7 @@ function urlToSources(url: string): Source[] {
     });
   }
 
-  if (scanSettings.searchNullUndefined) {
+  if (currentSettings.scanners.searchNullUndefined) {
     const undefinedValue = "undefined";
     sources.push({
       type: SourceType.UndefinedValue,
@@ -155,12 +161,12 @@ function generateFindings(url: string, sources: Source[]): Finding[] {
       let mPart = part;
       let mSourceValue = source.value;
 
-      if (scanSettings.caseInsensitive) {
+      if (currentSettings.matching.caseInsensitive) {
         mPart = part.toLowerCase();
         mSourceValue = source.value.toLowerCase();
       }
 
-      const match = scanSettings.partialMatch
+      const match = currentSettings.matching.partial
         ? mPart.includes(mSourceValue)
         : mPart === mSourceValue;
       if (mPart.length !== 0 && match) {

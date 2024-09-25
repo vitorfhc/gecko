@@ -6,10 +6,10 @@ import { Description, Field, Label, Switch } from "@headlessui/react";
 interface ToggleProps {
   label: string;
   enabled: boolean;
-  setEnabled: (enabled: boolean) => void;
+  onChange: (enabled: boolean) => void;
 }
 
-export default function Toggle({ label, enabled, setEnabled }: ToggleProps) {
+export default function Toggle({ label, enabled, onChange }: ToggleProps) {
   return (
     <Field className="flex items-center justify-between">
       <span className="flex flex-grow flex-col">
@@ -23,7 +23,7 @@ export default function Toggle({ label, enabled, setEnabled }: ToggleProps) {
       </span>
       <Switch
         checked={enabled}
-        onChange={setEnabled}
+        onChange={onChange}
         className="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
       >
         <span className="sr-only">Use setting</span>

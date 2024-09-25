@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import Toggle from "../components/ui/toggle";
 import "../tailwind/styles.css";
+import { defaultSettings } from "../shared/constants";
 
 export default function Popup() {
+  const [settings, setSettings] = React.useState(defaultSettings);
+
+  useEffect(() => {
+    chrome.storage.local.get("settings", (items) => {
+      setSettings(items.settings);
+    });
+  }, []);
+
+  useEffect(() => {
+    chrome.storage.local.set({ settings });
+  }, [settings]);
+
   return (
     <div className="min-w-[300px] p-4 bg-white">
       <p className="text-xl font-semibold mb-4">Settings</p>
@@ -11,25 +24,85 @@ export default function Popup() {
       <div className="space-y-4">
         <Toggle
           label="Search in Query Values"
-          enabled={true}
-          setEnabled={() => {}}
+          enabled={settings.scanners.searchQueryValues}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              scanners: {
+                ...settings.scanners,
+                searchQueryValues: !settings.scanners.searchQueryValues,
+              },
+            });
+          }}
         />
-        <Toggle label="Search in Path" enabled={true} setEnabled={() => {}} />
+        <Toggle
+          label="Search in Path"
+          enabled={settings.scanners.searchPath}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              scanners: {
+                ...settings.scanners,
+                searchPath: !settings.scanners.searchPath,
+              },
+            });
+          }}
+        />
         <Toggle
           label="Search for null/undefined"
-          enabled={true}
-          setEnabled={() => {}}
+          enabled={settings.scanners.searchNullUndefined}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              scanners: {
+                ...settings.scanners,
+                searchNullUndefined: !settings.scanners.searchNullUndefined,
+              },
+            });
+          }}
         />
       </div>
       <hr className="my-4" />
       <div className="space-y-4">
-        <Toggle label="Partial Matching" enabled={true} setEnabled={() => {}} />
+        <Toggle
+          label="Partial Matching"
+          enabled={settings.matching.partial}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              matching: {
+                ...settings.matching,
+                partial: !settings.matching.partial,
+              },
+            });
+          }}
+        />
         <Toggle
           label="Clear Findings on Refresh"
-          enabled={true}
-          setEnabled={() => {}}
+          enabled={settings.display.clearOnRefresh}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              display: {
+                ...settings.display,
+                clearOnRefresh: !settings.display.clearOnRefresh,
+              },
+            });
+          }}
         />
-        <Toggle label="Case Insensitive" enabled={true} setEnabled={() => {}} />
+        <Toggle
+          label="Case Insensitive"
+          enabled={settings.matching.caseInsensitive}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              matching: {
+                ...settings.matching,
+                caseInsensitive: !settings.matching.caseInsensitive,
+              },
+            });
+          }}
+        />
       </div>
       <hr className="my-4" />
       <button
