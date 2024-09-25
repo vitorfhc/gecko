@@ -19,6 +19,7 @@
 - [x] Partial matching toggle
 - [x] Findings badge
 - [ ] Add minimum length for partial matching
+- [ ] Notification on how to see findings
 
 ### DevTools panel
 
