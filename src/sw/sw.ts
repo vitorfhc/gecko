@@ -13,6 +13,25 @@ const scanSettings = {
   partialMatch: true,
 };
 
+chrome.storage.local.onChanged.addListener((changes) => {
+  if (changes.findings) {
+    const newLength = changes.findings.newValue.length;
+
+    if (newLength) {
+      chrome.action.setBadgeText({
+        text: `${newLength}`,
+      });
+      chrome.action.setBadgeBackgroundColor({
+        color: "#cc3300",
+      });
+    } else {
+      chrome.action.setBadgeText({
+        text: "",
+      });
+    }
+  }
+});
+
 function storeFinding(finding: Finding) {
   storageMutex.runExclusive(async () => {
     chrome.storage.local.get("findings", (items) => {
