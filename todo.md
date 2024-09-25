@@ -30,3 +30,4 @@
 - [x] Add click on table's rows to expand information
 - [ ] Tooltip for URLs
 - [ ] No findings UI
+- [ ] Coloring on match
