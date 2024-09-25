@@ -18,7 +18,7 @@
 - [x] Toggles for source types
 - [x] Partial matching toggle
 - [x] Findings badge
-- [ ] Integrate the toggles with the service worker
+- [x] Integrate the toggles with the service worker
 - [ ] Add minimum length for partial matching
 - [ ] Notification on how to see findings
 
