@@ -29,3 +29,4 @@
 - [x] Improve the UI according to the v0.dev
 - [x] Add click on table's rows to expand information
 - [ ] Tooltip for URLs
+- [ ] No findings UI
