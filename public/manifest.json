@@ -11,6 +11,12 @@
     "service_worker": "js/sw.js",
     "type": "module"
   },
-  "permissions": ["activeTab", "scripting", "webRequest", "storage"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "webRequest",
+    "storage",
+    "webNavigation"
+  ],
   "host_permissions": ["<all_urls>"]
 }

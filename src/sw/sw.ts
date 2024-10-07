@@ -59,6 +59,12 @@ function updateCurrentTab() {
 chrome.tabs.onActivated.addListener(updateCurrentTab);
 chrome.tabs.onUpdated.addListener(updateCurrentTab);
 
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (details.frameId === 0 && currentSettings.display.clearOnRefresh) {
+    chrome.storage.local.set({ findings: [] });
+  }
+});
+
 updateCurrentTab();
 
 // function contentLog(message: any) {

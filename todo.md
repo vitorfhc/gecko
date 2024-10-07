@@ -21,6 +21,7 @@
 - [x] Integrate the toggles with the service worker
 - [x] Notification on how to see findings
 - [x] Add minimum length for partial matching
+- [x] Clear findings on refresh
 
 ### DevTools panel
 
@@ -32,5 +33,5 @@
 - [x] Add click on table's rows to expand information
 - [ ] Tooltip for URLs
 - [ ] No findings UI
-- [ ] Coloring on match
+- [ ] Coloring what has matched
 - [ ] Search feature
