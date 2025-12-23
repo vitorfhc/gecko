@@ -47,65 +47,59 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
   });
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
-            Findings
-          </h1>
-          <p className="mt-2 text-sm text-gray-700">
-            A list of all findings the extension has detected.
-          </p>
-        </div>
-        <div className="mt-2 sm:ml-2 sm:mt-0 sm:flex-none">
-          <button
-            type="button"
-            className="max-w-40 min-w-40 block rounded-md bg-danger px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-danger-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger-dark"
-            onClick={clearFindings}
-          >
-            Clear findings
-          </button>
-        </div>
+    <div className="py-2">
+      <div className="flex items-center justify-between px-4 mb-2">
+        <h1 className="text-xs font-bold uppercase tracking-wider text-gray-500">
+          Findings ({findings.length})
+        </h1>
+        <button
+          type="button"
+          className="text-[10px] font-semibold text-danger hover:text-danger-dark transition-colors uppercase tracking-tight"
+          onClick={clearFindings}
+        >
+          Clear All
+        </button>
       </div>
-      <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300 cursor-pointer table-fixed">
-                <tbody className="divide-y divide-gray-200 bg-white">
+      <div className="flow-root">
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden border-t border-gray-100">
+              <table className="min-w-full divide-y divide-gray-100 cursor-pointer table-fixed">
+                <tbody className="divide-y divide-gray-50 bg-white">
                   {findings.map((finding) => (
                     <tr
                       key={finding.index}
-                      className="hover:bg-gray-50"
+                      className="hover:bg-gray-50 transition-colors"
                       onClick={() => onRowClick(finding)}
                     >
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-500 sm:pl-6">
+                      <td className="w-10 whitespace-nowrap py-2 pl-4 text-[10px] font-medium text-gray-400">
                         {finding.index}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 truncate max-w-0 w-full space-y-2">
-                        <dl>
-                          <dt className="text-gray-500 text-xs">Value</dt>
-                          <dd className="text-sm text-gray-800 truncate">
+                      <td className="px-3 py-2 text-sm truncate">
+                        <div className="flex flex-col min-w-0">
+                          <div className="text-[13px] font-medium text-gray-900 truncate mb-0.5">
                             {finding.finding.source.value}
-                          </dd>
-                        </dl>
-                        <dl>
-                          <dt className="text-gray-500 text-xs">Source</dt>
-                          <dd className="text-sm text-gray-800 truncate">
-                            {finding.croppedSourceUrl}
-                          </dd>
-                        </dl>
-                        <dl>
-                          <dt className="text-gray-500 text-xs">Target</dt>
-                          <dd className="text-sm text-gray-800 truncate">
-                            {finding.croppedTargetUrl}
-                          </dd>
-                        </dl>
+                          </div>
+                          <div className="flex items-center gap-3 text-[10px] text-gray-400 truncate">
+                            <div className="truncate flex-shrink min-w-0">
+                              <span className="font-semibold text-gray-300 mr-1">
+                                S
+                              </span>
+                              {finding.croppedSourceUrl}
+                            </div>
+                            <div className="truncate flex-shrink min-w-0">
+                              <span className="font-semibold text-gray-300 mr-1">
+                                T
+                              </span>
+                              {finding.croppedTargetUrl}
+                            </div>
+                          </div>
+                        </div>
                       </td>
-                      <td>
+                      <td className="w-8 pr-4 text-right">
                         <ChevronRightIcon
                           aria-hidden="true"
-                          className="h-5 w-5 flex-none text-gray-400"
+                          className="h-4 w-4 inline text-gray-300"
                         />
                       </td>
                     </tr>
