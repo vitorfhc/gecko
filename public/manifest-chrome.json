@@ -20,11 +20,6 @@
   "host_permissions": [
     "<all_urls>"
   ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "gecko@gecko.xyz"
-    }
-  },
   "icons": {
     "48": "icons/gecko-48.png",
     "96": "icons/gecko-96.png"

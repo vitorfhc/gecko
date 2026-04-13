@@ -8,17 +8,21 @@ import browser from "webextension-polyfill";
 
 export default function Popup() {
   const [settings, setSettings] = React.useState(defaultSettings);
+  const [loaded, setLoaded] = React.useState(false);
   const minLenClasses = settings.matching.partial ? "" : "hidden";
 
   useEffect(() => {
     browser.storage.local.get("settings").then((items) => {
-      setSettings(items.settings);
+      if (items.settings) setSettings(items.settings);
+      setLoaded(true);
     });
   }, []);
 
   useEffect(() => {
-    browser.storage.local.set({ settings });
-  }, [settings]);
+    if (loaded) {
+      browser.storage.local.set({ settings });
+    }
+  }, [settings, loaded]);
 
   return (
     <div className="min-w-[300px] p-4 bg-white">

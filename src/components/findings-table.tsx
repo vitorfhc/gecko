@@ -7,6 +7,7 @@ import { useFindings } from "./findings-context";
 import FindingsSearch from "./findings-search";
 import HighlightedText from "./ui/highlithed-text";
 import EmptyFindings from "./ui/empty-findings";
+import browser from "webextension-polyfill";
 
 interface FindingsTableProps {
   onRowClick: (finding: FindingUI) => void;
@@ -21,7 +22,7 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
   };
 
   useEffect(() => {
-    const uiFindings: FindingUI[] = findings
+    const uiFindings: FindingUI[] = [...findings]
       .reverse()
       .map((finding: Finding, index: number) => {
         return {
@@ -46,8 +47,10 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
           <button
             type="button"
             className="max-w-35 min-w-35 block rounded-md bg-white px-2 py-2 text-center text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 mr-2"
-            onClick={() => {
-              const dataStr = JSON.stringify(findings, null, 2);
+            onClick={async () => {
+              const data = await browser.storage.local.get("findings");
+              const allFindings = data.findings || [];
+              const dataStr = JSON.stringify(allFindings, null, 2);
               const blob = new Blob([dataStr], { type: "application/json" });
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");
@@ -56,6 +59,7 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              URL.revokeObjectURL(url);
             }}
           >
             Export

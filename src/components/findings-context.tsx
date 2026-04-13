@@ -11,13 +11,7 @@ interface FindingsContextType {
   setSearch: (search: Search) => void;
 }
 
-const FindingsContext = createContext<FindingsContextType>({
-  findings: [],
-  clearFindings: () => {},
-  refreshFindings: () => {},
-  search: { value: "", source: "", target: "" } as Search,
-  setSearch: () => {},
-});
+const FindingsContext = createContext<FindingsContextType | null>(null);
 
 export const FindingsProvider = ({
   children,

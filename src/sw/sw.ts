@@ -5,6 +5,7 @@ import { defaultSettings } from "../shared/constants";
 
 let currentTab: browser.Tabs.Tab | null = null;
 let storageMutex = new Mutex();
+const MAX_FINDINGS = 5000;
 
 const currentSettings: Settings = JSON.parse(JSON.stringify(defaultSettings));
 
@@ -68,23 +69,38 @@ function storeFinding(finding: Finding) {
       ? items.findings
       : [];
     findings.push(finding);
+    if (findings.length > MAX_FINDINGS) {
+      findings.splice(0, findings.length - MAX_FINDINGS);
+    }
     await browser.storage.local.set({ findings, findingsCache: cache });
   });
 }
 
+let updateCounter = 0;
 function updateCurrentTab() {
+  const myCounter = ++updateCounter;
   browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-    if (tabs.length > 0) {
+    if (myCounter === updateCounter && tabs.length > 0) {
       currentTab = tabs[0];
     }
   });
 }
 
 browser.tabs.onActivated.addListener(updateCurrentTab);
-browser.tabs.onUpdated.addListener(updateCurrentTab);
+browser.tabs.onUpdated.addListener((_tabId, changeInfo) => {
+  if (changeInfo.url || changeInfo.status === "complete") {
+    updateCurrentTab();
+  }
+});
 
 browser.webNavigation.onCommitted.addListener((details) => {
-  if (details.frameId === 0 && currentSettings.display.clearOnRefresh) {
+  if (
+    details.frameId === 0 &&
+    currentSettings.display.clearOnRefresh &&
+    (details as any).transitionType === "reload" &&
+    currentTab &&
+    details.tabId === currentTab.id
+  ) {
     browser.storage.local.set({ findings: [] });
   }
 });
@@ -97,7 +113,7 @@ browser.webRequest.onBeforeRequest.addListener(
       return undefined;
     }
 
-    if (currentTab && currentTab.url) {
+    if (currentTab && currentTab.url && details.tabId === currentTab.id) {
       if (details.url === currentTab.url) {
         return undefined;
       }
