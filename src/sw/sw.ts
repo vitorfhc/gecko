@@ -1,47 +1,72 @@
 import browser from "webextension-polyfill";
 import { Mutex } from "async-mutex";
 import { Source, SourceType, Finding, Settings } from "../shared/types";
-import { defaultSettings } from "../shared/constants";
+import {
+  compileIgnorePatterns,
+  isIgnoredTarget,
+  normalizeSettings,
+} from "../shared/settings";
 
 let currentTab: browser.Tabs.Tab | null = null;
 let storageMutex = new Mutex();
 
-const currentSettings: Settings = JSON.parse(JSON.stringify(defaultSettings));
+let currentSettings: Settings = normalizeSettings();
+let ignorePatterns: RegExp[] = [];
 
-browser.storage.local.get("settings").then((items) => {
-  if (!items.settings) {
-    browser.storage.local.set({ settings: defaultSettings });
+function applySettings(settings: Settings) {
+  currentSettings = settings;
+  ignorePatterns = compileIgnorePatterns(settings);
+}
+
+// Findings hidden by ignore patterns are still stored, so removing a pattern
+// brings them back, but they don't count towards the badge.
+function updateBadge(findings: Finding[]) {
+  const count = findings.filter(
+    (f) => !isIgnoredTarget(f.target.url, ignorePatterns),
+  ).length;
+
+  if (count) {
+    browser.action.setBadgeText({
+      text: `${count}`,
+    });
+    browser.action.setBadgeBackgroundColor({
+      color: "#cc3300",
+    });
   } else {
-    Object.assign(currentSettings, items.settings);
+    browser.action.setBadgeText({
+      text: "",
+    });
   }
+}
+
+browser.storage.local.get(["settings", "findings"]).then((items) => {
+  const settings = normalizeSettings(items.settings);
+  // Save back so settings from older versions gain newly added fields
+  if (JSON.stringify(settings) !== JSON.stringify(items.settings)) {
+    browser.storage.local.set({ settings });
+  }
+  applySettings(settings);
+  updateBadge(Array.isArray(items.findings) ? items.findings : []);
 });
 
 browser.storage.local.onChanged.addListener((changes) => {
-  if (changes.findings && changes.findings.newValue) {
-    const newLength = (changes.findings.newValue as any[]).length;
+  if (changes.settings) {
+    applySettings(normalizeSettings(changes.settings.newValue));
+    browser.storage.local.get("findings").then((items) => {
+      updateBadge(Array.isArray(items.findings) ? items.findings : []);
+    });
+  }
 
-    if (newLength === 0) {
+  if (changes.findings && changes.findings.newValue) {
+    const findings = changes.findings.newValue as Finding[];
+
+    if (findings.length === 0) {
       storageMutex.runExclusive(async () => {
         await browser.storage.local.set({ findingsCache: {} });
       });
     }
 
-    if (newLength) {
-      browser.action.setBadgeText({
-        text: `${newLength}`,
-      });
-      browser.action.setBadgeBackgroundColor({
-        color: "#cc3300",
-      });
-    } else {
-      browser.action.setBadgeText({
-        text: "",
-      });
-    }
-  }
-
-  if (changes.settings) {
-    Object.assign(currentSettings, changes.settings.newValue);
+    updateBadge(findings);
   }
 });
 

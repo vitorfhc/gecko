@@ -14,14 +14,14 @@ interface FindingsTableProps {
 
 export default function FindingsTable({ onRowClick }: FindingsTableProps) {
   const [visibleFindings, setVisibleFindings] = useState<FindingUI[]>([]);
-  const { findings, clearFindings } = useFindings();
+  const { findings, totalFindings, clearFindings } = useFindings();
 
   const removeProtocol = (url: string) => {
     return url.replace("https://", "").replace("http://", "");
   };
 
   useEffect(() => {
-    const uiFindings: FindingUI[] = findings
+    const uiFindings: FindingUI[] = [...findings]
       .reverse()
       .map((finding: Finding, index: number) => {
         return {
@@ -46,6 +46,7 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
           <button
             type="button"
             className="max-w-35 min-w-35 block rounded-md bg-white px-2 py-2 text-center text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 mr-2"
+            title="Exports the findings currently shown, after search and ignore patterns"
             onClick={() => {
               const dataStr = JSON.stringify(findings, null, 2);
               const blob = new Blob([dataStr], { type: "application/json" });
@@ -56,9 +57,13 @@ export default function FindingsTable({ onRowClick }: FindingsTableProps) {
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
+              // Revoking right away can cancel the download in some browsers
+              setTimeout(() => URL.revokeObjectURL(url), 10000);
             }}
           >
-            Export
+            {findings.length < totalFindings
+              ? `Export ${findings.length} of ${totalFindings}`
+              : "Export"}
           </button>
           <button
             type="button"

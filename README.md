@@ -56,7 +56,7 @@ Before you begin, ensure you have the following installed on your machine:
    npm run build:ff
    ```
    
-   - **Option B**: Using Docker
+   - **Option B**: Using Docker (needs BuildKit, the default since Docker 23; step 2 is not required)
    ```bash
    # Build for Chrome
    ./build-docker.sh chrome

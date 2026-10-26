@@ -1,34 +1,24 @@
 #!/bin/bash
+set -euo pipefail
 
 # Check if an argument was provided
-if [ -z "$1" ]; then
-    echo "Usage: ./build.sh [chrome|ff]"
+if [ -z "${1:-}" ]; then
+    echo "Usage: ./build-docker.sh [chrome|ff]"
     exit 1
 fi
 
 TARGET=$1
 
-# Map the argument to the npm command
-if [ "$TARGET" == "chrome" ]; then
-    CMD="npm run build:chrome"
-elif [ "$TARGET" == "ff" ]; then
-    CMD="npm run build:ff"
-else
+if [ "$TARGET" != "chrome" ] && [ "$TARGET" != "ff" ]; then
     echo "Error: Invalid target. Use 'chrome' or 'ff'."
     exit 1
 fi
 
-# Ensure the local dist folder exists so Docker can mount it
-mkdir -p dist
-
 echo "Building Gecko for $TARGET using Docker..."
 
-# Build the image if it doesn't exist
-docker build -t gecko-builder .
-
-# Run the container and mount the current directory
-docker run --rm \
-  --user "$(id -u):$(id -g)" \
-    -v "$(pwd)":/app gecko-builder $CMD
+# Build inside the image and export only the resulting dist folder. Files are
+# written by the Docker client, so they belong to the current user.
+rm -rf dist
+docker build --build-arg TARGET="$TARGET" --output type=local,dest=dist .
 
 echo "Build complete. Check the 'dist' folder."

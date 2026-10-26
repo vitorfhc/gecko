@@ -1,10 +1,23 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import browser from "webextension-polyfill";
 import { Finding, Search, Settings } from "../shared/types";
 import { defaultSettings } from "../shared/constants";
+import {
+  compileIgnorePatterns,
+  isIgnoredTarget,
+  loadSettings,
+  normalizeSettings,
+} from "../shared/settings";
 
 interface FindingsContextType {
   findings: Finding[];
+  totalFindings: number;
   clearFindings: () => void;
   refreshFindings: () => void;
   search: Search;
@@ -13,6 +26,7 @@ interface FindingsContextType {
 
 const FindingsContext = createContext<FindingsContextType>({
   findings: [],
+  totalFindings: 0,
   clearFindings: () => {},
   refreshFindings: () => {},
   search: { value: "", source: "", target: "" } as Search,
@@ -33,23 +47,6 @@ export const FindingsProvider = ({
   });
   const [settings, setSettings] = useState<Settings>(defaultSettings);
 
-  useEffect(() => {
-    browser.storage.local.get("settings").then((items) => {
-      if (items.settings) setSettings(items.settings);
-    });
-    const listener = (
-      changes: browser.Storage.StorageAreaOnChangedChangesType,
-    ) => {
-      if (changes.settings) {
-        setSettings(changes.settings.newValue);
-      }
-    };
-    browser.storage.local.onChanged.addListener(listener);
-    return () => {
-      browser.storage.local.onChanged.removeListener(listener);
-    };
-  }, []);
-
   const fetchFindings = () => {
     browser.storage.local.get("findings").then((data) => {
       data.findings = data.findings || [];
@@ -65,11 +62,15 @@ export const FindingsProvider = ({
 
   useEffect(() => {
     fetchFindings();
+    loadSettings().then(setSettings);
     const listener = (
       changes: browser.Storage.StorageAreaOnChangedChangesType,
     ) => {
       if (changes.findings) {
         fetchFindings();
+      }
+      if (changes.settings) {
+        setSettings(normalizeSettings(changes.settings.newValue));
       }
     };
     browser.storage.local.onChanged.addListener(listener);
@@ -78,11 +79,12 @@ export const FindingsProvider = ({
     };
   }, []);
 
-  useEffect(() => {
-    const activePatterns = (settings.filters?.ignorePatterns ?? [])
-      .map((p) => p.trim())
-      .filter((p) => p.length > 0);
+  const ignorePatterns = useMemo(
+    () => compileIgnorePatterns(settings),
+    [settings],
+  );
 
+  useEffect(() => {
     let valueSearch = search.value.toLowerCase().trim();
     let targetSearch = search.target.toLowerCase().trim();
     let sourceSearch = search.source.toLowerCase().trim();
@@ -101,23 +103,10 @@ export const FindingsProvider = ({
 
     let filtered = rawFindings;
 
-    if (activePatterns.length > 0) {
-      filtered = filtered.filter((f) => {
-        const targetPath = (() => {
-          try {
-            return new URL(f.target.url).pathname;
-          } catch {
-            return f.target.url;
-          }
-        })();
-        return !activePatterns.some((pattern) => {
-          try {
-            return new RegExp(pattern).test(targetPath);
-          } catch {
-            return false;
-          }
-        });
-      });
+    if (ignorePatterns.length > 0) {
+      filtered = filtered.filter(
+        (f) => !isIgnoredTarget(f.target.url, ignorePatterns),
+      );
     }
 
     if (
@@ -142,12 +131,13 @@ export const FindingsProvider = ({
     }
 
     setFilteredFindings(filtered);
-  }, [search, rawFindings, settings]);
+  }, [search, rawFindings, ignorePatterns]);
 
   return (
     <FindingsContext.Provider
       value={{
         findings: filteredFindings,
+        totalFindings: rawFindings.length,
         clearFindings,
         refreshFindings: fetchFindings,
         search,

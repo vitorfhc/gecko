@@ -2,23 +2,57 @@ import React, { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import Toggle from "../components/ui/toggle";
 import "../tailwind/styles.css";
-import { defaultSettings } from "../shared/constants";
+import { Settings } from "../shared/types";
+import { loadSettings, toRegExp } from "../shared/settings";
 import InfoAlert from "../components/ui/info-alert";
 import browser from "webextension-polyfill";
 
 export default function Popup() {
-  const [settings, setSettings] = React.useState(defaultSettings);
-  const minLenClasses = settings.matching.partial ? "" : "hidden";
+  const [settings, setSettings] = React.useState<Settings | null>(null);
+  const [patternsText, setPatternsText] = React.useState("");
 
   useEffect(() => {
-    browser.storage.local.get("settings").then((items) => {
-      setSettings(items.settings);
+    loadSettings().then((stored) => {
+      setSettings(stored);
+      setPatternsText(stored.filters.ignorePatterns.join("\n"));
     });
   }, []);
 
+  const updateSettings = (next: Settings) => {
+    setSettings(next);
+    browser.storage.local.set({ settings: next });
+  };
+
+  const commitPatterns = () => {
+    if (!settings) return;
+    if (patternsText === settings.filters.ignorePatterns.join("\n")) return;
+    updateSettings({
+      ...settings,
+      filters: {
+        ...settings.filters,
+        ignorePatterns: patternsText.split("\n"),
+      },
+    });
+  };
+
+  // Patterns are saved once typing pauses, so a half-typed regex such as "/"
+  // or "/api|" doesn't briefly hide every finding in the panel.
   useEffect(() => {
-    browser.storage.local.set({ settings });
-  }, [settings]);
+    const timer = setTimeout(commitPatterns, 500);
+    window.addEventListener("pagehide", commitPatterns);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("pagehide", commitPatterns);
+    };
+  }, [patternsText, settings]);
+
+  if (!settings) return null;
+
+  const minLenClasses = settings.matching.partial ? "" : "hidden";
+  const invalidPatterns = patternsText
+    .split("\n")
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0 && toRegExp(p) === null);
 
   return (
     <div className="min-w-[300px] p-4 bg-white">
@@ -29,7 +63,7 @@ export default function Popup() {
           label="Search in Query Values"
           enabled={settings.scanners.searchQueryValues}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               scanners: {
                 ...settings.scanners,
@@ -42,7 +76,7 @@ export default function Popup() {
           label="Search in Path"
           enabled={settings.scanners.searchPath}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               scanners: {
                 ...settings.scanners,
@@ -55,7 +89,7 @@ export default function Popup() {
           label="Search for null/undefined"
           enabled={settings.scanners.searchNullUndefined}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               scanners: {
                 ...settings.scanners,
@@ -71,7 +105,7 @@ export default function Popup() {
           label="Partial Matching"
           enabled={settings.matching.partial}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               matching: {
                 ...settings.matching,
@@ -93,7 +127,7 @@ export default function Popup() {
             onChange={(e) => {
               const value = parseInt(e.target.value, 10);
               if (isNaN(value)) return;
-              setSettings({
+              updateSettings({
                 ...settings,
                 matching: {
                   ...settings.matching,
@@ -108,7 +142,7 @@ export default function Popup() {
           label="Clear Findings on Refresh"
           enabled={settings.display.clearOnRefresh}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               display: {
                 ...settings.display,
@@ -121,7 +155,7 @@ export default function Popup() {
           label="Case Insensitive"
           enabled={settings.matching.caseInsensitive}
           onChange={() => {
-            setSettings({
+            updateSettings({
               ...settings,
               matching: {
                 ...settings.matching,
@@ -138,22 +172,21 @@ export default function Popup() {
         </label>
         <p className="text-xs text-gray-500 mb-2">
           One regex per line. Findings whose target path matches any pattern
-          will be hidden.
+          will be hidden. Follows the Case Insensitive setting.
         </p>
         <textarea
           className="w-full p-2 text-sm font-mono border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-200 resize-y"
           rows={4}
           placeholder={"/stealth\n/health-check"}
-          value={settings.filters.ignorePatterns.join("\n")}
-          onChange={(e) => {
-            setSettings({
-              ...settings,
-              filters: {
-                ignorePatterns: e.target.value.split("\n"),
-              },
-            });
-          }}
+          value={patternsText}
+          onChange={(e) => setPatternsText(e.target.value)}
+          onBlur={commitPatterns}
         />
+        {invalidPatterns.length > 0 && (
+          <p className="text-xs text-danger-dark mt-1">
+            Invalid regex, not applied: {invalidPatterns.join(", ")}
+          </p>
+        )}
       </div>
       <hr className="my-4" />
       <InfoAlert message="Open the DevTools Gecko panel to see the findings." />

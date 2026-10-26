@@ -13,5 +13,10 @@ RUN npm install
 # Copy the rest of the source code
 COPY . .
 
-# Default command (can be overridden)
-CMD ["npm", "run", "build:chrome"]
+# Build for the requested browser (chrome or ff)
+ARG TARGET=chrome
+RUN npm run build:${TARGET}
+
+# Keep only the built extension, so `docker build --output` exports just dist
+FROM scratch
+COPY --from=builder /app/dist /
